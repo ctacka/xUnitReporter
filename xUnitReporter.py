@@ -10,7 +10,7 @@ class xUnitTestCase(Element):
 
 
     def _add_fail(self, failtype, type, message=None, text=None):
-        for el in self: self.remove(el)
+        self.clear()
         msg = Element(failtype)
         self.append(msg)
         msg.set('type', type)
@@ -25,12 +25,12 @@ class xUnitTestCase(Element):
         self._add_fail('error', type, message, text)
 
     def skip(self, type, text=None):
-        self._add_fail('skipped', type, message=None, text)
+        self._add_fail('skipped', type, message=None, text=None)
 
 
 class xUnitTestSuite(Element):
     def __init__(self, name, hostname=None, timestamp=None):
-        super(xUnitReport, self).__init__('testsuite')
+        super(xUnitTestSuite, self).__init__('testsuite')
         if hostname: self.set('hostname', hostname)
         if timestamp: self.set('timestamp', timestamp)
         self.set('name', name)
@@ -50,16 +50,17 @@ class xUnitTestSuite(Element):
         time = float(0)
         for tc in self.iter('testcase'):
             tests += 1
-            if tc[0].tag == 'failure': failure += 1
-            if tc[0].tag == 'error': error += 1
-            if tc[0].tag == 'skipped': skip += 1
             time += float(tc.get('time', 0))
+            if len(tc) > 0:
+                if tc[0].tag == 'failure': failure += 1
+                if tc[0].tag == 'error': error += 1
+                if tc[0].tag == 'skipped': skip += 1
 
-        self.set('failures', failure)
-        self.set('errors', error)
-        self.set('skipped', skip)
-        self.set('tests', tests)
-        self.set('time', time)
+        self.set('failures', str(failure))
+        self.set('errors', str(error))
+        self.set('skipped', str(skip))
+        self.set('tests', str(tests))
+        self.set('time', str(time))
 
 
 class xUnitReport(Element):
