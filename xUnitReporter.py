@@ -4,25 +4,28 @@ from xml.etree.ElementTree import Element, ElementTree
 class xUnitTestCase(Element):
     def __init__(self, name, time=None, classname=None):
         super(xUnitTestCase, self).__init__('testcase')
-        if time and type(time) == type(float): self.set('time', time)
+        if time: self.set('time', time)
         if classname: self.set('classname', classname)
         self.set('name', name)
 
 
-    def _add_fail(self, failtype, type, message=None, text=None):
+    def _add_fail(self, failtype, type, message=None, text=None, time=None):
+        attribs = self.items()
         self.clear()
+        for key, value in attribs: self.set(key, value)
         msg = Element(failtype)
         self.append(msg)
         msg.set('type', type)
         if message: msg.set('message', message)
         if text: msg.text = text
+        if time: self.set('time', time)
 
 
-    def fail(self, type, message, text=None):
-        self._add_fail('failure', type, message, text)
+    def fail(self, type, message, text=None, time=None):
+        self._add_fail('failure', type, message, text, time)
 
     def error(self, type, message, text=None):
-        self._add_fail('error', type, message, text)
+        self._add_fail('error', type, message, text, time)
 
     def skip(self, type, text=None):
         self._add_fail('skipped', type, message=None, text=None)
